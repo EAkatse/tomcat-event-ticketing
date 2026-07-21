@@ -22,4 +22,4 @@
 [Add screenshots]
 
 ### Reviewers
-@team-lead @ci-cd-manager
+@dquayartey @KingsCreatives
