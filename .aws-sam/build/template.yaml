@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Tomcat Events Limited - Event Registration API
-
 Globals:
   Function:
     Runtime: python3.12
@@ -10,86 +9,91 @@ Globals:
     MemorySize: 128
     Environment:
       Variables:
-        TABLE_NAME: !Ref EventTicketingTable
-
+        TABLE_NAME:
+          Ref: EventTicketingTable
 Resources:
   EventTicketingTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: EventTicketingTable
       AttributeDefinitions:
-        - AttributeName: PK
-          AttributeType: S
-        - AttributeName: SK
-          AttributeType: S
-        - AttributeName: GSI1PK
-          AttributeType: S
-        - AttributeName: GSI1SK
-          AttributeType: S
+      - AttributeName: PK
+        AttributeType: S
+      - AttributeName: SK
+        AttributeType: S
+      - AttributeName: GSI1PK
+        AttributeType: S
+      - AttributeName: GSI1SK
+        AttributeType: S
       KeySchema:
-        - AttributeName: PK
-          KeyType: HASH
-        - AttributeName: SK
-          KeyType: RANGE
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
       GlobalSecondaryIndexes:
-        - IndexName: EmailIndex
-          KeySchema:
-            - AttributeName: GSI1PK
-              KeyType: HASH
-            - AttributeName: GSI1SK
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
+      - IndexName: EmailIndex
+        KeySchema:
+        - AttributeName: GSI1PK
+          KeyType: HASH
+        - AttributeName: GSI1SK
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
-
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/handlers/register/
+      CodeUri: RegisterFunction
       Events:
         RegisterApi:
           Type: Api
           Properties:
             Path: /register
             Method: POST
-
+    Metadata:
+      SamResourceId: RegisterFunction
   ListEventsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/handlers/list_events/
+      CodeUri: ListEventsFunction
       Events:
         ListEventsApi:
           Type: Api
           Properties:
             Path: /events
             Method: GET
-
+    Metadata:
+      SamResourceId: ListEventsFunction
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/handlers/get_registrations/
+      CodeUri: GetRegistrationsFunction
       Events:
         GetRegistrationsApi:
           Type: Api
           Properties:
             Path: /registrations/{email}
             Method: GET
-
+    Metadata:
+      SamResourceId: GetRegistrationsFunction
   CancelRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/handlers/cancel_registration/
+      CodeUri: CancelRegistrationFunction
       Events:
         CancelRegistrationApi:
           Type: Api
           Properties:
             Path: /registration/{id}
             Method: DELETE
-
+    Metadata:
+      SamResourceId: CancelRegistrationFunction
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
   TableName:
     Description: DynamoDB Table Name
-    Value: !Ref EventTicketingTable
+    Value:
+      Ref: EventTicketingTable

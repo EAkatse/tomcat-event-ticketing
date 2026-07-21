@@ -22,4 +22,8 @@
 [Add screenshots]
 
 ### Reviewers
+<<<<<<< HEAD
 @dquayartey @KingsCreatives
+=======
+@team-lead @ci-cd-manager
+>>>>>>> 0df6480 (docs: add project documentation and team structure)
