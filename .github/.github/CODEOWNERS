@@ -1,0 +1,28 @@
+# Team Lead
+README.md       @team-lead
+docs/           @team-lead
+.github/        @team-lead
+
+# CI/CD Manager
+.github/workflows/  @ci-cd-manager
+template.yaml       @ci-cd-manager
+samconfig.toml      @ci-cd-manager
+
+# Backend Engineer
+src/handlers/register/     @backend-engineer
+src/handlers/cancel/       @backend-engineer
+src/common/                @backend-engineer
+
+# Database Admin
+src/handlers/events/       @db-admin
+src/handlers/registrations/ @db-admin
+infra/dynamodb.yaml        @db-admin
+
+# Observability Lead
+infra/monitoring.yaml      @observability-lead
+infra/budgets.yaml         @observability-lead
+# All IAM statements (review required)
+
+# QA & Docs
+tests/                     @qa-docs
+docs/openapi.yaml          @qa-docs
