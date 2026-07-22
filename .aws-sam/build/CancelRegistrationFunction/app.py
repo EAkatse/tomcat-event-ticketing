@@ -121,4 +121,4 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({'error': str(e)})
         }
->>>>>>> 0068188 (Add SAM Event Registration API)
+>>>>>>> 4dff86f (Backend Code updates)

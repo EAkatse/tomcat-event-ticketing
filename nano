@@ -22,17 +22,3 @@
 ```bash
 git revert HEAD
 git push origin main
-<<<<<<< HEAD
-=======
-
-Troubleshooting
-CORS Errors
-Check src/common/responses.py for CORS headers
-
-Verify API Gateway CORS configuration
-
-Lambda Timeouts
-
-Increase MemorySize in template.yaml 
-Optimize code (reduce external calls)
->>>>>>> 0068188 (Add SAM Event Registration API)

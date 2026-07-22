@@ -1,0 +1,21 @@
+version = 0.1
+
+[default]
+[default.global]
+[default.global.parameters]
+stack_name = "tomcat-event-ticketing"
+region = "us-east-1"
+
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy]
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "tomcat-event-ticketing"
+disable_rollback = true
+image_repositories = []
