@@ -44,6 +44,13 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: RegisterFunction
+<<<<<<< HEAD
+=======
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: EventTicketingTable
+>>>>>>> 4dff86f (Backend Code updates)
       Events:
         RegisterApi:
           Type: Api
@@ -56,6 +63,13 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ListEventsFunction
+<<<<<<< HEAD
+=======
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: EventTicketingTable
+>>>>>>> 4dff86f (Backend Code updates)
       Events:
         ListEventsApi:
           Type: Api
@@ -68,6 +82,13 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: GetRegistrationsFunction
+<<<<<<< HEAD
+=======
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: EventTicketingTable
+>>>>>>> 4dff86f (Backend Code updates)
       Events:
         GetRegistrationsApi:
           Type: Api
@@ -80,6 +101,13 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: CancelRegistrationFunction
+<<<<<<< HEAD
+=======
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: EventTicketingTable
+>>>>>>> 4dff86f (Backend Code updates)
       Events:
         CancelRegistrationApi:
           Type: Api

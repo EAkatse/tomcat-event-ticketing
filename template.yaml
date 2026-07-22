@@ -136,8 +136,8 @@ Resources:
               KeyType: HASH
             - AttributeName: GSI1SK
               KeyType: RANGE
-      Projection:
-        ProjectionType: ALL
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
 
   # ─── Lambda Functions ──────────────────────
@@ -145,6 +145,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/handlers/register/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTicketingTable
       Events:
         RegisterApi:
           Type: Api
@@ -156,6 +159,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/handlers/list_events/
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTicketingTable
       Events:
         ListEventsApi:
           Type: Api
@@ -167,6 +173,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/handlers/get_registrations/
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTicketingTable
       Events:
         GetRegistrationsApi:
           Type: Api
@@ -178,6 +187,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/handlers/cancel_registration/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTicketingTable
       Events:
         CancelRegistrationApi:
           Type: Api
