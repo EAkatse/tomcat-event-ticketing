@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 import uuid
 from datetime import datetime
@@ -51,3 +52,116 @@ def lambda_handler(event, context):
         
     except Exception as e:
         return error_response(str(e), 500)
+=======
+import json
+import boto3
+import os
+import uuid
+from datetime import datetime
+from decimal import Decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj) if obj % 1 != 0 else int(obj)
+        return super(DecimalEncoder, self).default(obj)
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(os.environ.get('TABLE_NAME', 'EventTicketingTable'))
+
+def lambda_handler(event, context):
+    try:
+        body = json.loads(event['body'])
+        event_id = body.get('event_id')
+        email = body.get('email')
+        name = body.get('name')
+        
+        if not event_id or not email or not name:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                },
+                'body': json.dumps({'error': 'Missing required fields'})
+            }
+        
+        # Check if event exists
+        event_response = table.get_item(
+            Key={'PK': f'EVENT#{event_id}', 'SK': 'METADATA'}
+        )
+        
+        if 'Item' not in event_response:
+            return {
+                'statusCode': 404,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                },
+                'body': json.dumps({'error': 'Event not found'})
+            }
+        
+        event = event_response['Item']
+        capacity = int(event.get('capacity', 0))
+        registered = int(event.get('registered', 0))
+        
+        if registered >= capacity:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                },
+                'body': json.dumps({'error': 'Event is full'})
+            }
+        
+        registration_id = str(uuid.uuid4())[:8]
+        
+        table.put_item(
+            Item={
+                'PK': f'EVENT#{event_id}',
+                'SK': f'REG#{email}',
+                'GSI1PK': f'REG#{email}',
+                'GSI1SK': f'EVENT#{event_id}',
+                'registration_id': registration_id,
+                'name': name,
+                'email': email,
+                'event_id': event_id,
+                'registered_at': datetime.now().isoformat(),
+                'status': 'CONFIRMED'
+            }
+        )
+        
+        table.update_item(
+            Key={'PK': f'EVENT#{event_id}', 'SK': 'METADATA'},
+            UpdateExpression='ADD #r :inc',
+            ExpressionAttributeNames={'#r': 'registered'},
+            ExpressionAttributeValues={':inc': 1}
+        )
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
+            'body': json.dumps({
+                'message': 'Registration confirmed',
+                'registration_id': registration_id
+            }, cls=DecimalEncoder)
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
+            'body': json.dumps({'error': str(e)})
+        }
+>>>>>>> 0068188 (Add SAM Event Registration API)
