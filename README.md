@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-HEAD
 # Event Registration & Ticketing System
 
 A serverless event registration and ticketing API built with AWS Lambda, API Gateway, and DynamoDB. This system replaces manual Microsoft Forms + Excel workflows with an automated, scalable solution.
@@ -323,7 +321,7 @@ aws cloudformation delete-stack --stack-name event-ticketing-api-prod
 | **Trello Board** | https://trello.com/b/GWJVHvuQ/tomcat-project-2 |
 | **Live Frontend** | https://www.xxxxxxxx.com |
 | **API Base URL** | https://[api-id].execute-api.[region].amazonaws.com/prod |
-| **Architecture Diagram** | [Link to diagram] |
+| **Architecture Diagram** | [Link to diagram](docs/ARCHITECTURE.md) |
 | **OpenAPI Specification** | `docs/openapi.yaml` |
 
 ---
@@ -334,37 +332,7 @@ This project is part of the Azubi Africa AWS Cloud Program.
 
 ---
 
-![alt text](serverless-event-registration.jpg)
-
-
-## Architecture Overview
-
-This diagram illustrates a fully serverless AWS architecture for an **Event Registration & Ticketing System**, replacing a manual Microsoft Forms/Excel-based workflow with a scalable, automated, API-driven platform.
-
-**User Access:**
-Event participants, web browser users, mobile users, and admin users all interact with the system over **HTTPS**, sending requests to a central **Amazon API Gateway** exposing a REST API with endpoints for registering attendees, listing events, retrieving tickets, viewing registrations, and deleting registrations.
-
-**Application Logic:**
-API Gateway invokes **AWS Lambda** functions that handle all business logic — validating requests, generating ticket IDs, storing registrations, retrieving event/ticket data, and triggering confirmation emails. This removes the need for always-on servers, so the system only incurs cost when it's actually processing requests.
-
-**Data & Notifications:**
-Lambda reads from and writes to **Amazon DynamoDB**, which stores Events, Registrations, and (optionally) Tickets in a fully managed, low-latency NoSQL database. After a successful registration, Lambda publishes a message to **Amazon SNS**, which sends the confirmation email and can also handle ticket notifications and admin alerts.
-
-**Observability & Cost Control:**
-**Amazon CloudWatch** collects logs, metrics, and errors from API Gateway, Lambda, and DynamoDB, giving real-time visibility into application health (dashed lines). **AWS Budgets** independently tracks usage and spend across all core services (Lambda, API Gateway, DynamoDB, SNS, CloudWatch) to keep the project within AWS Free Tier limits and alert on cost overruns.
-
-**Security:**
-A dedicated **Security & IAM** group enforces least-privilege access through a Lambda execution role, scoped IAM policies, a CloudWatch logs role, and API Gateway permissions — ensuring each component can only access what it needs.
-
-**CI/CD & Project Management:**
-Outside the AWS boundary, a **Developer** pushes code to a **GitHub Repository**, which triggers **GitHub Actions** to automatically deploy Lambda functions and API Gateway configuration — replacing the organization's previous unstructured deployment process. **Trello** is used solely for task/project management and is intentionally kept separate from the application's data flow.
-
-**Key AWS Services Used:** API Gateway, Lambda, DynamoDB, SNS, CloudWatch, AWS Budgets, IAM.
-e13ab4f (Architecture design added)
-=======
-HEAD
-![alt text](serverless-event-registration.jpg)
-
+![Serverless event registration architecture diagram](serverless-event-registration.jpg)
 
 ## Architecture Overview
 
@@ -389,91 +357,3 @@ A dedicated **Security & IAM** group enforces least-privilege access through a L
 Outside the AWS boundary, a **Developer** pushes code to a **GitHub Repository**, which triggers **GitHub Actions** to automatically deploy Lambda functions and API Gateway configuration — replacing the organization's previous unstructured deployment process. **Trello** is used solely for task/project management and is intentionally kept separate from the application's data flow.
 
 **Key AWS Services Used:** API Gateway, Lambda, DynamoDB, SNS, CloudWatch, AWS Budgets, IAM.
-=======
-# Event Registration & Ticketing System
-
-A serverless REST API for event registration and ticketing, built with AWS Lambda, API Gateway, and DynamoDB.
-
-## Architecture Overview
-Browser │────▶│ CloudFront │────▶│ API Gateway│────▶│ Lambda
-│
-▼
-┌─────────────┐
-│ DynamoDB │
-│ (Single- │
-│ Table) │
-└─────────────┘
-
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /register | Register for an event |
-| GET | /events | List all events |
-| GET | /registrations/{email} | View registrations by email |
-| DELETE | /registration/{id} | Cancel a registration |
-
-## Tech Stack
-
-- **Compute:** AWS Lambda (Python 3.12)
-- **API:** Amazon API Gateway (REST)
-- **Database:** Amazon DynamoDB (Single-table design)
-- **CI/CD:** GitHub Actions with OIDC
-- **Monitoring:** Amazon CloudWatch + SNS
-- **Cost Control:** AWS Budgets
-
-## Project Structure
-
-event-ticketing-api/
-├── .github/workflows/ # CI/CD pipelines
-├── src/handlers/ # Lambda function code
-├── infra/ # SAM nested stacks
-├── tests/ # Unit + integration tests
-├── docs/ # Documentation
-├── template.yaml # SAM root stack
-└── README.md # This file
-
-
-
-## Getting Started
-
-### Prerequisites
-- AWS CLI configured
-- SAM CLI installed
-- Python 3.12+
-- Git
-
-### Local Development
-
-```bash
-# Clone the repository
-git clone https://github.com/EAkatse/tomcat-event-ticketing.git
-cd tomcat-event-ticketing
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements-dev.txt
-
-# Start local API
-sam local start-api
-
-Live Deployment
-Frontend: https://xxxxxxxxxxxxxxx.com
-API: https://api.xxxxxxxxxxxxxxxxxxx.com
-GitHub: https://github.com/EAkatse/tomcat-event-ticketing.git 
-
-
-Team
-Role	Name
-Team Coordinator	[David Quayartey]
-CI/CD Manager	[Samuel Kinsford Amoah]
-Backend Engineer	[Peter Nartey]
-Database Admin	[Emmanuel Akatse]
-Monitoring Lead [Nunoo Annah Frimpomaah]
-Quality Assurance Lead [Salu Alhassan]
-8a4d27d (docs: add project documentation and team structure)
->>>>>>> 0df6480 (docs: add project documentation and team structure)

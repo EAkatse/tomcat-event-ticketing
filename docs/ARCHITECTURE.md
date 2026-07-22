@@ -1,38 +1,6 @@
-HEAD
-<<<<<<< HEAD
 # Architecture Overview
 
-## System Architecture
-
-### Data Flow
-1. User visits frontend (S3 + CloudFront)
-2. Frontend calls API Gateway
-3. API Gateway routes to Lambda
-4. Lambda processes business logic
-5. Lambda reads/writes to DynamoDB
-6. SNS sends confirmation email
-7. CloudWatch logs everything
-
-### DynamoDB Single-Table Design
-
-| Item Type | PK | SK | GSI1PK | GSI1SK |
-|-----------|----|----|--------|--------|
-| Event | EVENT#<id> | METADATA | — | — |
-| Registration | EVENT#<id> | REG#<email> | REG#<email> | EVENT#<id> |
-
-### Security Layers
-- **Transport:** HTTPS (ACM + CloudFront)
-- **API:** API Gateway throttling + CORS
-- **Data:** DynamoDB encryption at rest
-- **Access:** IAM least privilege + OIDC
-- **Monitoring:** CloudWatch Alarms + SNS
-
-=======
->>>>>>> 0df6480 (docs: add project documentation and team structure)
-![alt text](serverless-event-registration.jpg)
-
-
-## Architecture Overview
+![Serverless event registration architecture diagram](serverless-event-registration.jpg)
 
 This diagram illustrates a fully serverless AWS architecture for an **Event Registration & Ticketing System**, replacing a manual Microsoft Forms/Excel-based workflow with a scalable, automated, API-driven platform.
 
@@ -54,15 +22,12 @@ A dedicated **Security & IAM** group enforces least-privilege access through a L
 **CI/CD & Project Management:**
 Outside the AWS boundary, a **Developer** pushes code to a **GitHub Repository**, which triggers **GitHub Actions** to automatically deploy Lambda functions and API Gateway configuration — replacing the organization's previous unstructured deployment process. **Trello** is used solely for task/project management and is intentionally kept separate from the application's data flow.
 
+---
 
-**Key AWS Services Used:** API Gateway, Lambda, DynamoDB, SNS, CloudWatch, AWS Budgets, IAM.
-<<<<<<< HEAD
-e13ab4f (Architecture design added)
-=======
-
-
+## System Architecture
 
 ### Data Flow
+
 1. User visits frontend (S3 + CloudFront)
 2. Frontend calls API Gateway
 3. API Gateway routes to Lambda
@@ -75,14 +40,17 @@ e13ab4f (Architecture design added)
 
 | Item Type | PK | SK | GSI1PK | GSI1SK |
 |-----------|----|----|--------|--------|
-| Event | EVENT#<id> | METADATA | — | — |
-| Registration | EVENT#<id> | REG#<email> | REG#<email> | EVENT#<id> |
+| Event | `EVENT#<id>` | `METADATA` | — | — |
+| Registration | `EVENT#<id>` | `REG#<email>` | `REG#<email>` | `EVENT#<id>` |
 
 ### Security Layers
+
 - **Transport:** HTTPS (ACM + CloudFront)
 - **API:** API Gateway throttling + CORS
 - **Data:** DynamoDB encryption at rest
 - **Access:** IAM least privilege + OIDC
 - **Monitoring:** CloudWatch Alarms + SNS
-(docs: add project documentation and team structure)
->>>>>>> 0df6480 (docs: add project documentation and team structure)
+
+---
+
+**Key AWS Services Used:** API Gateway, Lambda, DynamoDB, SNS, CloudWatch, AWS Budgets, IAM.
