@@ -1,29 +1,32 @@
-# Team Lead
-README.md       @dquayartey
-docs/           @dquayartey
-.github/        @dquayartey
+# GLOBAL FALLBACK OWNER
+*                                               @EAkatse @KingsCreatives
 
-# CI/CD Manager
-.github/workflows/  @KingsCreatives
-template.yaml       @KingsCreatives
-samconfig.toml      @KingsCreatives
+# TEAM LEAD - Overall project oversight
+README.md                                       @dquayartey
+docs/                                           @dquayartey
+.github/                                        @dquayartey
 
-# Backend Engineer
-src/handlers/register/     @plnartey
-src/handlers/cancel/       @plnartey
-src/common/                @plnartey
+# CI/CD MANAGER - Infrastructure & deployment
+.github/workflows/                              @KingsCreatives
+template.yaml                                   @KingsCreatives
+samconfig.toml                                  @KingsCreatives
+scripts/                                        @KingsCreatives
 
-# Database Admin
-src/handlers/events/       @EAkatse
-src/handlers/registrations/ @EAkatse
-infra/dynamodb.yaml        @EAkatse
+# BACKEND ENGINEER - Core business logic
+src/handlers/register/                          @plnartey
+src/handlers/cancel/                            @plnartey
+src/common/                                     @plnartey
+requirements-dev.txt                            @plnartey
 
-# Monitoring Lead
-infra/monitoring.yaml      @cyber-nunoo
-infra/budgets.yaml         @Cyber-nunoo
-# All IAM statements (review required)
+# DATABASE ADMIN - Data layer & storage
+src/handlers/events/                            @EAkatse
+src/handlers/registrations/                     @EAkatse
+infra/dynamodb.yaml                             @EAkatse
 
-# Quality Assurance Lead 
-tests/                     @SAlhassan
-docs/openapi.yaml          @SAlhassan
+# MONITORING LEAD - Observability & cost tracking
+infra/monitoring.yaml                           @Cyber-nunoo
+infra/budgets.yaml                              @Cyber-nunoo
 
+# QUALITY ASSURANCE LEAD - Testing & documentation
+tests/                                          @SAlhassan
+docs/openapi.yaml                               @SAlhassan
