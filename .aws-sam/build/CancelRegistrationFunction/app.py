@@ -3,6 +3,7 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 
+
 dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('TABLE_NAME', 'EventTicketingTable')
 table = dynamodb.Table(TABLE_NAME)
@@ -12,6 +13,7 @@ CORS_HEADERS = {
     "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
     "Access-Control-Allow-Methods": "DELETE,OPTIONS,GET,POST"
 }
+
 
 def lambda_handler(event, context):
     http_method = event.get('httpMethod', '')
@@ -31,7 +33,10 @@ def lambda_handler(event, context):
             registration_id = query_params.get('registrationId')
 
         if not registration_id and event.get('body'):
-            body = json.loads(event['body'])
+            try:
+                body = json.loads(event['body'])
+            except (TypeError, ValueError):
+                body = {}
             registration_id = body.get('registrationId')
 
         if not registration_id:
@@ -42,7 +47,8 @@ def lambda_handler(event, context):
             }
 
         pk = f"REG#{registration_id}" if not registration_id.startswith("REG#") else registration_id
-        
+
+        # Delete the registration record
         table.delete_item(
             Key={
                 'PK': pk,
