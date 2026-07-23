@@ -13,7 +13,7 @@ Globals:
         TABLE_NAME: !Ref EventTicketingTable
 
 Resources:
-  # ─── API Gateway with CORS ───────────────────
+  # --- API Gateway with CORS ---
   EventTicketingApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -23,7 +23,7 @@ Resources:
         AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
 
-  # ─── DynamoDB Table ────────────────────────
+  # --- DynamoDB Table ---
   EventTicketingTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -53,7 +53,7 @@ Resources:
             ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
 
-  # ─── Lambda Functions ──────────────────────
+  # --- Lambda Functions ---
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -111,7 +111,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref EventTicketingApi
-            Path: /registration-cancel/{id}
+            Path: /registration/{id}
             Method: DELETE
 
 Outputs:
