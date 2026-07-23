@@ -13,7 +13,17 @@ Globals:
         TABLE_NAME: !Ref EventTicketingTable
 
 Resources:
-  # ─── DynamoDB Table ────────────────────────
+  # --- API Gateway with CORS ---
+  EventTicketingApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  # --- DynamoDB Table ---
   EventTicketingTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -43,7 +53,7 @@ Resources:
             ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
 
-  # ─── Lambda Functions ──────────────────────
+  # --- Lambda Functions ---
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -55,6 +65,7 @@ Resources:
         RegisterApi:
           Type: Api
           Properties:
+            RestApiId: !Ref EventTicketingApi
             Path: /register
             Method: POST
 
@@ -69,6 +80,7 @@ Resources:
         ListEventsApi:
           Type: Api
           Properties:
+            RestApiId: !Ref EventTicketingApi
             Path: /events
             Method: GET
 
@@ -83,6 +95,7 @@ Resources:
         GetRegistrationsApi:
           Type: Api
           Properties:
+            RestApiId: !Ref EventTicketingApi
             Path: /registrations/{email}
             Method: GET
 
@@ -97,13 +110,14 @@ Resources:
         CancelRegistrationApi:
           Type: Api
           Properties:
+            RestApiId: !Ref EventTicketingApi
             Path: /registration/{id}
             Method: DELETE
 
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+    Value: !Sub "https://${EventTicketingApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
   TableName:
     Description: DynamoDB Table Name
     Value: !Ref EventTicketingTable

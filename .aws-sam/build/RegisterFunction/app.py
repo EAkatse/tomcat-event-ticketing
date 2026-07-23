@@ -1,62 +1,9 @@
-<<<<<<< HEAD
-import json
-import uuid
-from datetime import datetime
-from src.common.validation import validate_registration_input
-from src.common.responses import success_response, error_response
-from src.common.db import get_event, create_registration, increment_registered_count
-
-def lambda_handler(event, context):
-    try:
-        # Parse request body
-        body = json.loads(event.get('body', '{}'))
-        event_id = body.get('event_id')
-        email = body.get('email')
-        name = body.get('name')
-        
-        # Validate input
-        valid, message = validate_registration_input(event_id, email, name)
-        if not valid:
-            return error_response(message, 400)
-        
-        # Check if event exists
-        event_item = get_event(event_id)
-        if not event_item:
-            return error_response('Event not found', 404)
-        
-        # Check capacity
-        capacity = int(event_item.get('capacity', 0))
-        registered = int(event_item.get('registered', 0))
-        if registered >= capacity:
-            return error_response('Event is full', 400)
-        
-        # Generate registration ID
-        registration_id = str(uuid.uuid4())[:8]
-        
-        # Create registration
-        create_registration(
-            event_id=event_id,
-            email=email,
-            name=name,
-            registration_id=registration_id,
-            registered_at=datetime.now().isoformat()
-        )
-        
-        # Increment registered count
-        increment_registered_count(event_id)
-        
-        return success_response({
-            'message': 'Registration confirmed',
-            'registration_id': registration_id
-        })
-        
-    except Exception as e:
-        return error_response(str(e), 500)
-=======
 import json
 import boto3
 import os
 import uuid
+import time
+import logging
 from datetime import datetime
 from decimal import Decimal
 
@@ -66,12 +13,16 @@ class DecimalEncoder(json.JSONEncoder):
             return float(obj) if obj % 1 != 0 else int(obj)
         return super(DecimalEncoder, self).default(obj)
 
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table(os.environ.get('TABLE_NAME', 'EventTicketingTable'))
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
+    start_time = time.time()
+    
     try:
-        body = json.loads(event['body'])
+        logger.info(json.dumps({'event': event, 'timestamp': datetime.utcnow().isoformat() + 'Z'}))
+        
+        body = json.loads(event.get('body', '{}'))
         event_id = body.get('event_id')
         email = body.get('email')
         name = body.get('name')
@@ -87,10 +38,11 @@ def lambda_handler(event, context):
                 'body': json.dumps({'error': 'Missing required fields'})
             }
         
-        # Check if event exists
-        event_response = table.get_item(
-            Key={'PK': f'EVENT#{event_id}', 'SK': 'METADATA'}
-        )
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(os.environ.get('TABLE_NAME', 'EventTicketingTable'))
+        
+        # Check event exists
+        event_response = table.get_item(Key={'PK': f'EVENT#{event_id}', 'SK': 'METADATA'})
         
         if 'Item' not in event_response:
             return {
@@ -103,9 +55,9 @@ def lambda_handler(event, context):
                 'body': json.dumps({'error': 'Event not found'})
             }
         
-        event = event_response['Item']
-        capacity = int(event.get('capacity', 0))
-        registered = int(event.get('registered', 0))
+        event_item = event_response['Item']
+        capacity = int(event_item.get('capacity', 0))
+        registered = int(event_item.get('registered', 0))
         
         if registered >= capacity:
             return {
@@ -142,6 +94,9 @@ def lambda_handler(event, context):
             ExpressionAttributeValues={':inc': 1}
         )
         
+        duration_ms = (time.time() - start_time) * 1000
+        logger.info(json.dumps({'status': 200, 'duration_ms': duration_ms}))
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -152,9 +107,11 @@ def lambda_handler(event, context):
             'body': json.dumps({
                 'message': 'Registration confirmed',
                 'registration_id': registration_id
-            }, cls=DecimalEncoder)
+            })
         }
+        
     except Exception as e:
+        logger.error(json.dumps({'error': str(e), 'timestamp': datetime.utcnow().isoformat() + 'Z'}))
         return {
             'statusCode': 500,
             'headers': {
@@ -164,4 +121,3 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({'error': str(e)})
         }
->>>>>>> 4dff86f (Backend Code updates)

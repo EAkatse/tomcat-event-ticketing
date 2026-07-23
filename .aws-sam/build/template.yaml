@@ -12,6 +12,14 @@ Globals:
         TABLE_NAME:
           Ref: EventTicketingTable
 Resources:
+  EventTicketingApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: '''GET,POST,DELETE,OPTIONS'''
+        AllowHeaders: '''Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'''
+        AllowOrigin: '''*'''
   EventTicketingTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -44,17 +52,16 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: RegisterFunction
-<<<<<<< HEAD
-=======
       Policies:
       - DynamoDBCrudPolicy:
           TableName:
             Ref: EventTicketingTable
->>>>>>> 4dff86f (Backend Code updates)
       Events:
         RegisterApi:
           Type: Api
           Properties:
+            RestApiId:
+              Ref: EventTicketingApi
             Path: /register
             Method: POST
     Metadata:
@@ -63,17 +70,16 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ListEventsFunction
-<<<<<<< HEAD
-=======
       Policies:
       - DynamoDBReadPolicy:
           TableName:
             Ref: EventTicketingTable
->>>>>>> 4dff86f (Backend Code updates)
       Events:
         ListEventsApi:
           Type: Api
           Properties:
+            RestApiId:
+              Ref: EventTicketingApi
             Path: /events
             Method: GET
     Metadata:
@@ -82,17 +88,16 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: GetRegistrationsFunction
-<<<<<<< HEAD
-=======
       Policies:
       - DynamoDBReadPolicy:
           TableName:
             Ref: EventTicketingTable
->>>>>>> 4dff86f (Backend Code updates)
       Events:
         GetRegistrationsApi:
           Type: Api
           Properties:
+            RestApiId:
+              Ref: EventTicketingApi
             Path: /registrations/{email}
             Method: GET
     Metadata:
@@ -101,18 +106,17 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: CancelRegistrationFunction
-<<<<<<< HEAD
-=======
       Policies:
       - DynamoDBCrudPolicy:
           TableName:
             Ref: EventTicketingTable
->>>>>>> 4dff86f (Backend Code updates)
       Events:
         CancelRegistrationApi:
           Type: Api
           Properties:
-            Path: /registration/{id}
+            RestApiId:
+              Ref: EventTicketingApi
+            Path: /registration-cancel/{id}
             Method: DELETE
     Metadata:
       SamResourceId: CancelRegistrationFunction
@@ -120,7 +124,7 @@ Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
     Value:
-      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+      Fn::Sub: https://${EventTicketingApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
   TableName:
     Description: DynamoDB Table Name
     Value:
