@@ -1,39 +1,9 @@
-<<<<<<< HEAD
-from src.common.responses import success_response, error_response
-from src.common.db import get_registrations_by_email
-from src.common.validation import validate_email
-
-def lambda_handler(event, context):
-    try:
-        # Get email from path parameters
-        email = event.get('pathParameters', {}).get('email')
-        
-        # Validate email
-        valid, message = validate_email(email)
-        if not valid:
-            return error_response(message, 400)
-        
-        # Get registrations
-        items = get_registrations_by_email(email)
-        
-        registrations = []
-        for item in items:
-            registrations.append({
-                'event_id': item.get('event_id'),
-                'registration_id': item.get('registration_id'),
-                'name': item.get('name'),
-                'email': item.get('email'),
-                'status': item.get('status', 'CONFIRMED')
-            })
-        
-        return success_response({'registrations': registrations})
-        
-    except Exception as e:
-        return error_response(str(e), 500)
-=======
 import json
 import boto3
 import os
+import time
+import logging
+from datetime import datetime
 from decimal import Decimal
 
 class DecimalEncoder(json.JSONEncoder):
@@ -42,11 +12,15 @@ class DecimalEncoder(json.JSONEncoder):
             return float(obj) if obj % 1 != 0 else int(obj)
         return super(DecimalEncoder, self).default(obj)
 
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table(os.environ.get('TABLE_NAME', 'EventTicketingTable'))
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
+    start_time = time.time()
+    
     try:
+        logger.info(json.dumps({'event': event, 'timestamp': datetime.utcnow().isoformat() + 'Z'}))
+        
         email = event.get('pathParameters', {}).get('email')
         
         if not email:
@@ -59,6 +33,9 @@ def lambda_handler(event, context):
                 },
                 'body': json.dumps({'error': 'Email parameter required'})
             }
+        
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(os.environ.get('TABLE_NAME', 'EventTicketingTable'))
         
         response = table.query(
             IndexName='EmailIndex',
@@ -76,6 +53,9 @@ def lambda_handler(event, context):
                 'status': item.get('status', 'CONFIRMED')
             })
         
+        duration_ms = (time.time() - start_time) * 1000
+        logger.info(json.dumps({'status': 200, 'duration_ms': duration_ms}))
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -85,7 +65,9 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({'registrations': registrations}, cls=DecimalEncoder)
         }
+        
     except Exception as e:
+        logger.error(json.dumps({'error': str(e)}))
         return {
             'statusCode': 500,
             'headers': {
@@ -95,4 +77,3 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({'error': str(e)})
         }
->>>>>>> 4dff86f (Backend Code updates)

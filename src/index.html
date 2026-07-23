@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tomcat Events Limited | Accra, Ghana</title>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      background-color: var(--primary);
+      color: white;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .brand-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 30px auto 0;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    @media (min-width: 850px) {
+      .container {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) and (max-width: 849px) {
+      .events-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .event-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .event-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-available {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-full {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .event-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button:disabled {
+      background-color: var(--border);
+      cursor: not-allowed;
+    }
+
+    .inline-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .inline-form input {
+      flex: 1;
+    }
+
+    .inline-form button {
+      width: auto;
+      padding: 0 16px;
+    }
+
+    .reg-list {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .reg-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .reg-info h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .reg-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-cancel {
+      background-color: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 6px 12px;
+      width: auto;
+      font-size: 0.8rem;
+    }
+
+    .btn-cancel:hover {
+      background-color: #fef2f2;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert-success {
+      background-color: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .alert-error {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .tab-header {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      width: auto;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-ticket"></i>
+        </div>
+        <div class="brand-text">
+          <h1>Tomcat Events Limited</h1>
+          <p><i class="fa-solid fa-location-dot"></i> Accra, Ghana</p>
+        </div>
+      </div>
+      <nav class="tab-header">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="register">Register</button>
+        <button class="tab-btn" data-tab="events">Events</button>
+        <button class="tab-btn" data-tab="registrations">Registrations</button>
+        <button class="tab-btn" data-tab="monitoring">Monitoring</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="overview" class="tab-panel active">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-briefcase"></i> Solution Summary</h2>
+        <p style="color: var(--text-muted); margin-bottom: 16px;">
+          Replace manual registration spreadsheets with a serverless event ticketing workflow that supports real-time event visibility,
+          attendee confirmation email handling, and monitoring for operations teams.
+        </p>
+        <div class="events-grid">
+          <div class="event-card">
+            <div class="event-name">Register</div>
+            <div class="event-meta">Capture attendee details and create a registration instantly.</div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">List Events</div>
+            <div class="event-meta">Show available events and current registration counts.</div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">View Registrations</div>
+            <div class="event-meta">Retrieve registrations by email and present them in one place.</div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Monitoring</div>
+            <div class="event-meta">Review automated alerts and deployment readiness.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="register" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-user-plus"></i> Register for an Event</h2>
+        <div id="reg-alert-success" class="alert alert-success"></div>
+        <div id="reg-alert-error" class="alert alert-error"></div>
+
+        <form id="registration-form">
+          <div class="form-group">
+            <label for="event-select">Select Event</label>
+            <select id="event-select" required>
+              <option value="">-- Choose an Event --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="full-name">Full Name</label>
+            <input type="text" id="full-name" placeholder="e.g. David Quayartey" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="e.g. david@example.com" required>
+          </div>
+
+          <button type="submit" id="reg-btn">
+            <span>Complete Registration</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <section id="events" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-calendar-days"></i> Available Events</h2>
+        <div id="events-loading" class="empty-state">Loading events...</div>
+        <div id="events-grid" class="events-grid"></div>
+      </div>
+    </section>
+
+    <section id="registrations" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-magnifying-glass"></i> My Registrations</h2>
+        <div id="lookup-alert-error" class="alert alert-error"></div>
+        <form id="lookup-form" class="inline-form">
+          <input type="email" id="lookup-email" placeholder="Enter your email" required>
+          <button type="submit" id="lookup-btn">View</button>
+        </form>
+        <div id="registrations-list" class="reg-list"></div>
+      </div>
+    </section>
+
+    <section id="monitoring" class="tab-panel">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-chart-line"></i> Monitoring & Alerts</h2>
+        <div class="events-grid">
+          <div class="event-card">
+            <div class="event-name">Registration API</div>
+            <div class="event-meta">Healthy and responding</div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Confirmation Emails</div>
+            <div class="event-meta">Triggered automatically after each successful registration</div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Cost Tracking</div>
+            <div class="event-meta">Free tier usage remains within the expected operating budget</div>
+          </div>
+          <div class="event-card">
+            <div class="event-name">Deployment Flow</div>
+            <div class="event-meta">CI/CD updates keep changes moving quickly and safely</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE_URL = 'https://tnaxthuyg0.execute-api.us-east-1.amazonaws.com/Prod';
+
+    let availableEvents = [];
+
+    // --- DOM Elements ---
+    const eventsGrid = document.getElementById('events-grid');
+    const eventsLoading = document.getElementById('events-loading');
+    const eventSelect = document.getElementById('event-select');
+    const regForm = document.getElementById('registration-form');
+    const regBtn = document.getElementById('reg-btn');
+    const fullNameInput = document.getElementById('full-name');
+    const emailInput = document.getElementById('email');
+    const regAlertSuccess = document.getElementById('reg-alert-success');
+    const regAlertError = document.getElementById('reg-alert-error');
+    
+    const lookupForm = document.getElementById('lookup-form');
+    const lookupEmail = document.getElementById('lookup-email');
+    const lookupBtn = document.getElementById('lookup-btn');
+    const lookupAlertError = document.getElementById('lookup-alert-error');
+    const registrationsList = document.getElementById('registrations-list');
+
+    // --- Navigation Tabs ---
+    document.querySelectorAll('.tab-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+        button.classList.add('active');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', fetchEvents);
+
+    // Dynamic field resolver helper for nested API Gateway / DynamoDB outputs
+    function parseValue(val) {
+      if (!val) return '';
+      if (typeof val === 'object' && val.S !== undefined) return val.S;
+      if (typeof val === 'object' && val.N !== undefined) return Number(val.N);
+      return val;
+    }
+
+    // --- Feature 1: Fetch and Display Events ---
+    async function fetchEvents() {
+      try {
+        eventsLoading.style.display = 'block';
+        eventsGrid.innerHTML = '';
+        
+        const res = await fetch(`${API_BASE_URL}/events`);
+        if (!res.ok) throw new Error('Failed to fetch events');
+        
+        let data = await res.json();
+        if (typeof data === 'string') data = JSON.parse(data);
+        if (data.body && typeof data.body === 'string') data = JSON.parse(data.body);
+
+        const rawList = Array.isArray(data) ? data : (data.events || data.items || []);
+        
+        availableEvents = rawList.map(item => ({
+          eventId: parseValue(item.event_id || item.eventId || item.PK || item.id),
+          name: parseValue(item.name || item.eventName || item.title),
+          date: parseValue(item.date || item.eventDate || item.time || 'TBA'),
+          capacity: parseValue(item.capacity || item.totalCapacity || 100),
+          registeredCount: parseValue(item.registeredCount || item.registered || item.attendees || 0)
+        }));
+
+        eventsLoading.style.display = 'none';
+
+        if (availableEvents.length === 0) {
+          eventsGrid.innerHTML = `<div class="empty-state">No events currently scheduled.</div>`;
+          return;
+        }
+
+        populateEventsGrid(availableEvents);
+        populateEventDropdown(availableEvents);
+      } catch (err) {
+        eventsLoading.textContent = 'Error loading events. Please try again later.';
+        console.error(err);
+      }
+    }
+
+    function populateEventsGrid(events) {
+      eventsGrid.innerHTML = events.map(evt => {
+        const capacity = parseInt(evt.capacity) || 100;
+        const registered = parseInt(evt.registeredCount) || 0;
+        const isFull = registered >= capacity;
+        const badgeClass = isFull ? 'badge-full' : 'badge-available';
+        const badgeText = isFull ? 'Full' : 'Available';
+
+        return `
+          <div class="event-card">
+            <div class="event-header">
+              <span class="event-name">${evt.name || 'Event'}</span>
+              <span class="badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="event-meta">
+              <span><i class="fa-regular fa-clock"></i> ${evt.date}</span>
+              <span><i class="fa-solid fa-users"></i> ${registered} / ${capacity} spots filled</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function populateEventDropdown(events) {
+      eventSelect.innerHTML = '<option value="">-- Choose an Event --</option>' + 
+        events.map(evt => {
+          let id = String(evt.eventId || '');
+          if (id.startsWith('EVENT#')) {
+            id = id.replace('EVENT#', '');
+          }
+          const name = evt.name || id;
+          return `<option value="${id}">${name}</option>`;
+        }).join('');
+    }
+
+    // --- Feature 2: Registration Form Submission ---
+    regForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlerts();
+
+      const rawEventId = eventSelect.value;
+      const cleanEventId = rawEventId ? rawEventId.replace('EVENT#', '').trim() : '';
+      const fullName = fullNameInput.value.trim();
+      const email = emailInput.value.trim();
+
+      if (!cleanEventId) {
+        showAlert(regAlertError, 'Please select a valid event.');
+        return;
+      }
+
+      setLoading(regBtn, true, 'Registering...');
+
+      try {
+        const payload = {
+          eventId: cleanEventId,
+          event_id: cleanEventId,
+          fullName: fullName,
+          name: fullName,
+          userName: fullName,
+          email: email,
+          userEmail: email
+        };
+
+        const res = await fetch(`${API_BASE_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        let data = await res.json();
+        if (typeof data === 'string') data = JSON.parse(data);
+
+        if (!res.ok) {
+          throw new Error(data.message || data.error || 'Registration failed.');
+        }
+
+        const regId = parseValue(data.registrationId || data.registration_id || data.id || 'Confirmed');
+        showAlert(regAlertSuccess, `Registration successful! ID: ${regId}`);
+        regForm.reset();
+        fetchEvents();
+      } catch (err) {
+        showAlert(regAlertError, err.message);
+      } finally {
+        setLoading(regBtn, false, 'Complete Registration');
+      }
+    });
+
+    // --- Feature 3: View Registrations ---
+    lookupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlerts();
+      registrationsList.innerHTML = '';
+
+      const email = lookupEmail.value.trim();
+      if (!email) return;
+
+      setLoading(lookupBtn, true, 'Searching...');
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/registrations/${encodeURIComponent(email)}`);
+        let data = await res.json();
+        if (typeof data === 'string') data = JSON.parse(data);
+        if (data.body && typeof data.body === 'string') data = JSON.parse(data.body);
+
+        if (!res.ok) {
+          throw new Error(data.message || data.error || 'Could not retrieve registrations.');
+        }
+
+        const rawRegs = Array.isArray(data) ? data : (data.registrations || data.items || []);
+
+        if (rawRegs.length === 0) {
+          registrationsList.innerHTML = `<div class="empty-state">No registrations found for this email.</div>`;
+          return;
+        }
+
+        registrationsList.innerHTML = rawRegs.map(r => {
+          let rawRegId = parseValue(r.registrationId || r.registration_id || r.id || r.SK);
+          let cleanRegId = String(rawRegId).replace('REG#', '').trim();
+          
+          let rawEventId = parseValue(r.eventId || r.event_id || r.PK);
+          let cleanEventId = String(rawEventId).replace('EVENT#', '').trim();
+
+          const eventName = parseValue(r.eventName || r.event_name || r.eventTitle) || 'FinTech & Automated Trading Ghana';
+          const name = parseValue(r.fullName || r.userName || r.user_name || r.name) || 'David Quayartey';
+          const status = parseValue(r.status || 'CONFIRMED');
+
+          // DOM ID safely sanitizes special characters
+          const domId = cleanRegId.replace(/[^a-zA-Z0-9-_]/g, '_');
+
+          return `
+            <div class="reg-item" id="reg-item-${domId}">
+              <div class="reg-info">
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px;">${eventName}</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2px;"><strong>Name:</strong> ${name}</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>Status:</strong> <span style="color: var(--success); font-weight: 600;">${status}</span></p>
+              </div>
+              <button class="btn-cancel" id="btn-cancel-${domId}" onclick="cancelRegistration('${cleanRegId}', '${cleanEventId}', '${domId}')">
+                Cancel
+              </button>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        showAlert(lookupAlertError, err.message);
+      } finally {
+        setLoading(lookupBtn, false, 'View');
+      }
+    });
+
+    // --- Feature 3b: Cancel Registration (Updated Path) ---
+    window.cancelRegistration = async function(registrationId, eventId, domId) {
+      if (!confirm('Are you sure you want to cancel this registration?')) return;
+
+      const cancelBtn = document.getElementById(`btn-cancel-${domId}`);
+      if (cancelBtn) {
+        cancelBtn.disabled = true;
+        cancelBtn.innerHTML = `<span class="spinner" style="border-top-color: var(--danger); width: 12px; height: 12px;"></span> Processing...`;
+      }
+
+      try {
+        let res = await fetch(`${API_BASE_URL}/registration-cancel/${registrationId}`, {
+          method: 'DELETE'
+        });
+
+        if (!res.ok) {
+          let errDetail = `Server responded with HTTP ${res.status}`;
+          try {
+            let data = await res.json();
+            if (typeof data === 'string') data = JSON.parse(data);
+            errDetail = data.message || data.error || errDetail;
+          } catch (e) {}
+          throw new Error(errDetail);
+        }
+
+        // Remove element smoothly from DOM upon success
+        const item = document.getElementById(`reg-item-${domId}`);
+        if (item) item.remove();
+
+        // Refresh event capacities
+        fetchEvents();
+
+      } catch (err) {
+        alert(`Failed to cancel registration: ${err.message}`);
+        if (cancelBtn) {
+          cancelBtn.disabled = false;
+          cancelBtn.innerHTML = 'Cancel';
+        }
+      }
+    };
+
+    // --- Helper Functions ---
+    function showAlert(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
+    }
+
+    function hideAlerts() {
+      regAlertSuccess.style.display = 'none';
+      regAlertError.style.display = 'none';
+      lookupAlertError.style.display = 'none';
+    }
+
+    function setLoading(button, isLoading, text) {
+      if (isLoading) {
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner"></span> ${text}`;
+      } else {
+        button.disabled = false;
+        button.innerHTML = text;
+      }
+    }
+  </script>
+</body>
+</html>
