@@ -17,5 +17,5 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "tomcat-event-ticketing"
-disable_rollback = true
+disable_rollback = false
 image_repositories = []

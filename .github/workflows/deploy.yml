@@ -33,48 +33,9 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: python scripts/ai_validator.py
 
-    # 5. Core application deployment steps (runs only if the step above passes)
-    - name: Main Deployment Task
+    # 5. Core application deployment steps (Runs only if AI validation passes)
+    # This preserves the "Deploy to AWS" intent from the main branch
+    - name: Deploy to AWS
       run: |
-        echo "AI Validation successfully passed. Running your deployment pipeline..."
-        # Add your actual build and deployment commands here (e.g., npm run build, docker build, etc.)
-name: CI/CD Deployment with AI Validation
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  validate-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    # 1. Check out the repository code
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
-    # 2. Set up Python environment
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    # 3. Install required libraries
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    # 4. Run the AI structure validation script
-    - name: Run AI Layout Validation
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: python scripts/ai_validator.py
-
-    # 5. Core application deployment steps (runs only if the step above passes)
-    - name: Main Deployment Task
-      run: |
-        echo "AI Validation successfully passed. Running your deployment pipeline..."
-        # Add your actual build and deployment commands here (e.g., npm run build, docker build, etc.)
+        echo "AI Validation passed. Proceeding with AWS Deployment..."
+        # Your AWS SAM deployment commands will go here later

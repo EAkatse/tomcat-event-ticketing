@@ -11,7 +11,7 @@ class DecimalEncoder(json.JSONEncoder):
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token'
+    'Access-Control-Allow-Headers': 'Content-Type'
 }
 
 def success_response(data, status_code=200):

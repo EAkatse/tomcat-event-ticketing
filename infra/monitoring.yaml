@@ -1,0 +1,58 @@
+Resources:
+  # CLOUDWATCH ALARMS
+  HighErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "tomcat-${Environment}-high-error-rate"
+      AlarmDescription: "Error rate exceeds 5%"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub "tomcat-${Environment}-*"
+  
+  HighDurationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "tomcat-${Environment}-high-duration"
+      AlarmDescription: "Lambda duration exceeds 5 seconds"
+      Namespace: AWS/Lambda
+      MetricName: Duration
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 5000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub "tomcat-${Environment}-*"
+
+  # STEP 2: CLOUDWATCH DASHBOARD
+  TomcatDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub "tomcat-${Environment}-dashboard"
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  [ "AWS/Lambda", "Invocations", { "stat": "Sum" } ],
+                  [ ".", "Errors", { "stat": "Sum" } ],
+                  [ ".", "Duration", { "stat": "Average" } ]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Lambda Metrics"
+              }
+            }
+          ]
+        }
