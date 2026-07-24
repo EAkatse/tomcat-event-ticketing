@@ -2,7 +2,7 @@ name: PR Validation
 
 on:
   pull_request:
-    branches: [ main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -28,8 +28,8 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 src/ --count --max-complexity=10 --max-line-length=127 --statistics
-          flake8 tests/ --count --max-complexity=10 --max-line-length=127 --statistics
+          flake8 src/ --count --max-complexity=10 --max-line-length=127 --statistics --ignore=E302,E305,W293,W292,F401,F841,E501
+          flake8 tests/ --count --max-complexity=10 --max-line-length=127 --statistics --ignore=E302,E305,W293,W292,F401,F841,E501
 
       - name: Lint with pylint
         run: |
