@@ -1,14 +1,10 @@
 import os
 import sys
 from google import genai
-from google.genai import types
 
 def get_directory_structure(root_dir="."):
-    """Generates a text-based tree representation of the repository."""
     structure = []
-    # Ignore virtual environments, git data, and local cache layers
     ignored_dirs = {'.git', '__pycache__', 'node_modules', '.venv', 'venv', '.aws-sam'}
-    
     for root, dirs, files in os.walk(root_dir):
         dirs[:] = [d for d in dirs if d not in ignored_dirs]
         level = root.replace(root_dir, '').count(os.sep)
@@ -17,11 +13,9 @@ def get_directory_structure(root_dir="."):
         sub_indent = ' ' * 4 * (level + 1)
         for f in files:
             structure.append(f"{sub_indent}{f}")
-            
     return "\n".join(structure)
 
 def validate_structure():
-    # Automatically picks up the GEMINI_API_KEY environment variable
     client = genai.Client()
     repo_layout = get_directory_structure()
     
