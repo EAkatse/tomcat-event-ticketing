@@ -1,0 +1,64 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write   # Required for OIDC
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install aws-sam-cli
+          pip install -r requirements-dev.txt
+
+      - name: Run tests before deploy
+        run: |
+          pytest tests/unit -v --cov=src --cov-report=term-missing
+
+      - name: SAM Build
+        run: sam build
+
+      - name: SAM Deploy to Dev
+        run: |
+          sam deploy \
+            --config-env dev \
+            --no-confirm-changeset \
+            --fail-on-empty-changeset
+
+      - name: Run smoke tests after deploy
+        run: |
+          # Get API endpoint from CloudFormation output
+          API_URL=$(aws cloudformation describe-stacks \
+            --stack-name tomcat-event-ticketing-dev \
+            --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" \
+            --output text)
+          
+          echo "API URL: $API_URL"
+          
+          # Test health endpoint or /events
+          curl -f "$API_URL/events" || exit 1
+          echo "Smoke tests passed"
