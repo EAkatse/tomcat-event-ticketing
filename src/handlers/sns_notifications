@@ -1,0 +1,115 @@
+import os
+import boto3
+
+sns_client = boto3.client('sns')
+dynamodb = boto3.resource('dynamodb')
+
+# Your configured SNS Topic ARN
+SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN', 'arn:aws:sns:us-east-1:401042945835:event-demo-notifications')
+TABLE_NAME = os.environ.get('TABLE_NAME', 'EventTicketingTable')
+table = dynamodb.Table(TABLE_NAME)
+
+def get_event_details(event_id):
+    """Safely fetch event details without throwing exceptions if item/table layout varies."""
+    if not event_id or event_id == 'N/A':
+        return None, None
+    try:
+        # 1. Try SK = METADATA
+        res = table.get_item(Key={'PK': f"EVENT#{event_id}", 'SK': 'METADATA'})
+        if 'Item' in res:
+            item = res['Item']
+            title = item.get('title') or item.get('eventName') or item.get('name')
+            date_val = item.get('date') or item.get('eventDate') or item.get('scheduled_at')
+            return title, date_val
+        
+        # 2. Try SK = EVENT#<event_id>
+        res = table.get_item(Key={'PK': f"EVENT#{event_id}", 'SK': f"EVENT#{event_id}"})
+        if 'Item' in res:
+            item = res['Item']
+            title = item.get('title') or item.get('eventName') or item.get('name')
+            date_val = item.get('date') or item.get('eventDate') or item.get('scheduled_at')
+            return title, date_val
+    except Exception as e:
+        print(f"Non-blocking lookup warning for {event_id}: {str(e)}")
+    
+    return None, None
+
+def lambda_handler(event, context):
+    records = event.get('Records', [])
+    print(f"=== STREAM EVENT RECEIVED: {len(records)} record(s) ===")
+
+    for record in records:
+        try:
+            event_type = record.get('eventName')  # INSERT, MODIFY, or REMOVE
+            print(f"Processing Event Type: {event_type}")
+
+            # Select data payload based on event action
+            if event_type == 'REMOVE':
+                image = record['dynamodb'].get('OldImage', {})
+                default_status = 'CANCELLED'
+            else:
+                image = record['dynamodb'].get('NewImage', {})
+                default_status = 'CONFIRMED'
+
+            if not image:
+                print("Skipping: Stream image payload is empty.")
+                continue
+
+            # Extract Primary Keys
+            pk_val = image.get('PK', {}).get('S', '')
+            sk_val = image.get('SK', {}).get('S', '')
+
+            # Guard: Only process registration records
+            is_reg = sk_val.startswith('REG#') or ('@' in image.get('email', {}).get('S', ''))
+            if not is_reg:
+                print(f"Skipping non-registration stream item (PK: {pk_val}, SK: {sk_val})")
+                continue
+
+            # Extract Attendee & Event Fields
+            user_email = image.get('email', {}).get('S') or sk_val.replace('REG#', '') or 'N/A'
+            user_name = image.get('name', {}).get('S', 'Attendee')
+            event_id = image.get('event_id', {}).get('S') or pk_val.replace('EVENT#', '') or 'N/A'
+            registered_at = image.get('registered_at', {}).get('S', 'N/A')
+
+            # Extract Status
+            raw_status = image.get('status', {}).get('S')
+            if event_type == 'REMOVE':
+                status = 'CANCELLED'
+            elif raw_status:
+                status = raw_status.upper()
+            else:
+                status = default_status
+
+            clean_timestamp = registered_at.split('.')[0].replace('T', ' ') if 'T' in registered_at else registered_at
+
+            # Lookup human-readable event details
+            event_title, scheduled_date = get_event_details(event_id)
+            display_event_name = event_title if event_title else f"Event ({event_id})"
+            display_schedule = scheduled_date if scheduled_date else "See Event Details"
+
+            # Construct Email Body
+            subject = f"[{status}] {display_event_name} - {user_name}"
+            message = (
+                f"=== DEMO EVENT NOTIFICATION ===\n\n"
+                f"Status: {status}\n"
+                f"Attendee Name: {user_name}\n"
+                f"Attendee Email: {user_email}\n"
+                f"Event Name: {display_event_name}\n"
+                f"Scheduled Date: {display_schedule}\n"
+                f"Timestamp: {clean_timestamp}\n\n"
+                f"This update was automatically dispatched via DynamoDB Streams & SNS."
+            )
+
+            # Publish to SNS
+            print(f"Publishing {status} email to SNS Topic: {SNS_TOPIC_ARN}")
+            response = sns_client.publish(
+                TopicArn=SNS_TOPIC_ARN,
+                Subject=subject,
+                Message=message
+            )
+            print(f"SUCCESS: Notification sent for {user_email}. MessageID: {response['MessageId']}")
+
+        except Exception as record_err:
+            print(f"ERROR processing individual stream record: {str(record_err)}")
+
+    return {"statusCode": 200, "body": "Processed"}
