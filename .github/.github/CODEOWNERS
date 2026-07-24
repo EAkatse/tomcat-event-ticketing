@@ -1,5 +1,4 @@
 # Team Lead
-<<<<<<< HEAD
 README.md       @dquayartey
 docs/           @dquayartey
 .github/        @dquayartey
@@ -56,4 +55,3 @@ infra/budgets.yaml         @observability-lead
 # QA & Docs
 tests/                     @qa-docs
 docs/openapi.yaml          @qa-docs
->>>>>>> 0df6480 (docs: add project documentation and team structure)
