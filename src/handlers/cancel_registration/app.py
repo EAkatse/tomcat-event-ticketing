@@ -4,10 +4,6 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
-dynamodb = boto3.resource('dynamodb')
-TABLE_NAME = os.environ.get('TABLE_NAME', 'EventTicketingTable')
-table = dynamodb.Table(TABLE_NAME)
-
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
@@ -15,6 +11,9 @@ CORS_HEADERS = {
 }
 
 def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(os.environ.get('TABLE_NAME', 'EventTicketingTable'))
+
     http_method = event.get('httpMethod', '')
     if http_method == 'OPTIONS':
         return {
@@ -41,7 +40,7 @@ def lambda_handler(event, context):
             return {
                 "statusCode": 400,
                 "headers": CORS_HEADERS,
-                "body": json.dumps({"error": "Missing registrationId parameter"})
+                "body": json.dumps({"error": "Registration ID required"})
             }
 
         print(f"Attempting cancellation for registration_id: {registration_id}")
