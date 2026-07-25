@@ -9,16 +9,7 @@ jobs:
   validate:
     name: Validate Code
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Run unit tests with coverage
-        env:
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: testing
-          AWS_SECRET_ACCESS_KEY: testing
-        run: |
-          pytest tests/unit/ -v --cov=src --cov-report=term-missing --cov-fail-under=70
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -49,6 +40,10 @@ jobs:
           sam validate --template-file template.yaml
 
       - name: Run unit tests with coverage
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: testing
+          AWS_SECRET_ACCESS_KEY: testing
         run: |
           pytest tests/unit/ -v --cov=src --cov-report=term-missing --cov-fail-under=70
 
@@ -57,7 +52,7 @@ jobs:
         with:
           name: coverage-report
           path: htmlcov/
-          retention-days: 7
+        retention-days: 7
 
       - name: Check for secrets in code
         uses: gitleaks/gitleaks-action@v2
