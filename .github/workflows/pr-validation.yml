@@ -52,7 +52,7 @@ jobs:
         with:
           name: coverage-report
           path: htmlcov/
-        retention-days: 7
+          retention-days: 7
 
       - name: Check for secrets in code
         uses: gitleaks/gitleaks-action@v2
