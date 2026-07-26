@@ -345,7 +345,7 @@ aws cloudformation delete-stack --stack-name event-ticketing-api-prod
 |----------|-----|
 | **GitHub Repository** | https://github.com/EAkatse/tomcat-event-ticketing |
 | **Trello Board** | https://trello.com/b/GWJVHvuQ/tomcat-project-2 |
-| **Live Frontend** | https://www.xxxxxxxx.com |
+| **Live Frontend** | https://tomcateventslimited.site/ |
 | **API Base URL** | https://[api-id].execute-api.[region].amazonaws.com/prod |
 | **Architecture Diagram** | [Link to diagram](docs/ARCHITECTURE.md) |
 | **OpenAPI Specification** | `docs/openapi.yaml` |
