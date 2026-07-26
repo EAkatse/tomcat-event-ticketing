@@ -8,11 +8,15 @@ CORS_HEADERS = {
     "Access-Control-Allow-Methods": "DELETE,OPTIONS,GET,POST"
 }
 
+
 def lambda_handler(event, context):
     http_method = event.get('httpMethod', '')
     if http_method == 'OPTIONS':
-        return {"statusCode": 200, "headers": CORS_HEADERS,
-                "body": json.dumps({"message": "CORS preflight successful"})}
+        return {
+            "statusCode": 200,
+            "headers": CORS_HEADERS,
+            "body": json.dumps({"message": "CORS preflight successful"})
+        }
 
     try:
         path_params = event.get('pathParameters') or {}
@@ -27,8 +31,11 @@ def lambda_handler(event, context):
             registration_id = body.get('registrationId') or body.get('id')
 
         if not registration_id:
-            return {"statusCode": 400, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "Registration ID required"})}
+            return {
+                "statusCode": 400,
+                "headers": CORS_HEADERS,
+                "body": json.dumps({"error": "Registration ID required"})
+            }
 
         response = db.table.scan(
             FilterExpression="registration_id = :rid",
@@ -37,18 +44,32 @@ def lambda_handler(event, context):
         items = response.get('Items', [])
 
         if not items:
-            return {"statusCode": 404, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "Registration not found"})}
+            return {
+                "statusCode": 404,
+                "headers": CORS_HEADERS,
+                "body": json.dumps({"error": "Registration not found"})
+            }
 
         for item in items:
-            db.table.delete_item(Key={'PK': item['PK'], 'SK': item['SK']})
+            pk = item.get('PK') or f"EVENT#{item['event_id']}"
+            sk = item.get('SK') or f"REG#{item['email']}"
+            db.table.delete_item(Key={'PK': pk, 'SK': sk})
 
-        return {"statusCode": 200, "headers": CORS_HEADERS,
-                "body": json.dumps({"message": "Registration cancelled successfully"})}
+        return {
+            "statusCode": 200,
+            "headers": CORS_HEADERS,
+            "body": json.dumps({"message": "Registration cancelled successfully"})
+        }
 
     except ClientError as e:
-        return {"statusCode": 500, "headers": CORS_HEADERS,
-                "body": json.dumps({"error": "Failed to delete record from database", "details": str(e)})}
+        return {
+            "statusCode": 500,
+            "headers": CORS_HEADERS,
+            "body": json.dumps({"error": "Failed to delete record from database", "details": str(e)})
+        }
     except Exception as e:
-        return {"statusCode": 500, "headers": CORS_HEADERS,
-                "body": json.dumps({"error": "Internal server error", "details": str(e)})}
+        return {
+            "statusCode": 500,
+            "headers": CORS_HEADERS,
+            "body": json.dumps({"error": "Internal server error", "details": str(e)})
+        }
