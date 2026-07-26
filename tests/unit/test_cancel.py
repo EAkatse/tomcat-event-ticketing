@@ -1,12 +1,18 @@
 import sys
 import os
-# This MUST point to cancel_registration, NOT register
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'src', 'handlers', 'cancel_registration'))
+import importlib.util
+
+_handler_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'src', 'handlers', 'cancel_registration')
+sys.path.insert(0, _handler_dir)
 
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from app import lambda_handler
+
+_spec = importlib.util.spec_from_file_location("cancel_app", os.path.join(_handler_dir, "app.py"))
+app = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(app)
+lambda_handler = app.lambda_handler
 
 @pytest.fixture
 def mock_table():
